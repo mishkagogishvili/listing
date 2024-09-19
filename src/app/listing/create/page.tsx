@@ -2,17 +2,33 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Radio, Input, Form, Col, Row, Upload, message, Select, Flex } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 const { TextArea } = Input;
 
+type Agent = {
+    id: number;
+    name: string;
+};
+
+type Region = {
+    id: number;
+    name: string;
+};
+
+type City = {
+    id: number;
+    name: string;
+    region_id: number;
+};
+
 export default function CreateListing() {
-    const router = useRouter()
-    const [agents, setAgents] = useState([]);
-    const [regions, setRegions] = useState([]);
-    const [cities, setCities] = useState([]);
-    const [filteredCities, setFilteredCities] = useState([]);
+    const router = useRouter();
+    const [agents, setAgents] = useState<Agent[]>([]);
+    const [regions, setRegions] = useState<Region[]>([]);
+    const [cities, setCities] = useState<City[]>([]);
+    const [filteredCities, setFilteredCities] = useState<City[]>([]);  // Explicitly define type here
     const [loading, setLoading] = useState(false);
-    const [selectedRegion, setSelectedRegion] = useState(null);
+    const [selectedRegion, setSelectedRegion] = useState<number | null>(null);
     const [showCitySelect, setShowCitySelect] = useState(false);
     const [form] = Form.useForm();
 
@@ -38,11 +54,11 @@ export default function CreateListing() {
         fetchData('https://api.real-estate-manager.redberryinternship.ge/api/cities', setCities, 'cities');
     }, []);
 
-    const handleRegionChange = (regionId: any) => {
+    const handleRegionChange = (regionId: number) => {
         setSelectedRegion(regionId);
         setShowCitySelect(true);
-        const filtered = cities.filter((city: any) => city.region_id === regionId);
-        setFilteredCities(filtered);
+        const filtered = cities.filter((city: City) => city.region_id === regionId);
+        setFilteredCities(filtered);  // This will now work correctly
     };
 
     const onFinish = async (values: any) => {
@@ -76,10 +92,8 @@ export default function CreateListing() {
             });
 
             const data = await response.json();
-            console.log(data);
             if (response.ok) {
                 message.success('Listing created successfully!');
-                console.log('Response Data:', data);
                 form.resetFields();
             } else {
                 message.error('Failed to create listing');
@@ -114,20 +128,21 @@ export default function CreateListing() {
                     </Col>
 
                     <Col span={12}>
-                        <Form.Item name="address" label="მისამართი" rules={[{ required: true, message: "გრაფა აუცილებელია" },
-                        { min: 2, message: 'მინიმუმ 2 სიმბოლო' }]}>
+                        <Form.Item name="address" label="მისამართი" rules={[{ required: true, message: "გრაფა აუცილებელია" }, { min: 2, message: 'მინიმუმ 2 სიმბოლო' }]}>
                             <Input />
                         </Form.Item>
                     </Col>
+
                     <Col span={12}>
                         <Form.Item name="zip_code" label="საფოსტო ინდექსი" rules={[{ required: true, message: "გრაფა აუცილებელია" }, { pattern: /^[0-9]+$/, message: "მხოლოდ რიცხვები" }]}>
                             <Input />
                         </Form.Item>
                     </Col>
+
                     <Col span={12}>
                         <Form.Item label="რეგიონი" name="region_id" rules={[{ required: true, message: "გრაფა აუცილებელია" }]}>
                             <Select onChange={handleRegionChange}>
-                                {regions.map((region: any) => (
+                                {regions.map((region: Region) => (
                                     <Select.Option key={region.id} value={region.id}>
                                         {region.name}
                                     </Select.Option>
@@ -140,7 +155,7 @@ export default function CreateListing() {
                         {showCitySelect && (
                             <Form.Item label="ქალაქი" name="city_id" rules={[{ required: true, message: "გრაფა აუცილებელია" }]}>
                                 <Select>
-                                    {filteredCities.map((city: any) => (
+                                    {filteredCities.map((city: City) => (
                                         <Select.Option key={city.id} value={city.id}>
                                             {city.name}
                                         </Select.Option>
