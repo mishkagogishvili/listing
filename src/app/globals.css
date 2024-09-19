@@ -35,3 +35,12 @@ a {
 .ant-input-number {
   width: 100% !important;
 }
+
+.header {
+  background-color: #ffffff;
+  border: 1px solid #DBDBDB;
+}
+
+.content {
+  padding: 25px;
+}

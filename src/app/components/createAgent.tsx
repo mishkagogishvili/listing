@@ -149,7 +149,7 @@ export default function CreateAgent() {
                                         return Upload.LIST_IGNORE;
                                     }
                                     if (!notGreaterThan1MB) {
-                                        message.error('Image must be smaller than 1MB!');
+                                        message.error('Image must not be greater than 1MB!');
                                         return Upload.LIST_IGNORE;
                                     }
                                     return isImage && notGreaterThan1MB;

@@ -1,6 +1,11 @@
+import React from 'react';
+import { Flex, Layout } from 'antd';
+import Image from 'next/image';
+import { Header, Content } from "antd/lib/layout/layout";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import Link from 'next/link'
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,7 +31,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+        <Flex gap="middle" wrap>
+          <Layout>
+            <Header className='header'>
+              <Link href="/">
+                <Image
+                  width={150}
+                  height={24}
+                  src="/logo.png"
+                  alt='logo'
+                />
+              </Link>
+            </Header>
+            <Content className='content'>{children}</Content>
+          </Layout>
+        </Flex>
       </body>
     </html>
   );

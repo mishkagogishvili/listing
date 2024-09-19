@@ -17,7 +17,6 @@ export default function CreateListing() {
     const [form] = Form.useForm();
 
     const fetchData = async (endpoint: string, setData: React.Dispatch<React.SetStateAction<any[]>>, label: string) => {
-        setLoading(true);
         try {
             const response = await fetch(endpoint, {
                 headers: {
@@ -30,8 +29,6 @@ export default function CreateListing() {
         } catch (error) {
             console.error(`Error fetching ${label}:`, error);
             message.error(`Failed to fetch ${label}`);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -49,6 +46,7 @@ export default function CreateListing() {
     };
 
     const onFinish = async (values: any) => {
+        setLoading(true);
         const formData = new FormData();
 
         // Append form data
@@ -90,6 +88,8 @@ export default function CreateListing() {
         } catch (error) {
             console.error('Error creating listing:', error);
             message.error('Failed to create listing');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -126,7 +126,7 @@ export default function CreateListing() {
                     </Col>
                     <Col span={12}>
                         <Form.Item label="რეგიონი" name="region_id" rules={[{ required: true, message: "გრაფა აუცილებელია" }]}>
-                            <Select onChange={handleRegionChange} loading={loading}>
+                            <Select onChange={handleRegionChange}>
                                 {regions.map((region: any) => (
                                     <Select.Option key={region.id} value={region.id}>
                                         {region.name}
@@ -139,7 +139,7 @@ export default function CreateListing() {
                     <Col span={12}>
                         {showCitySelect && (
                             <Form.Item label="ქალაქი" name="city_id" rules={[{ required: true, message: "გრაფა აუცილებელია" }]}>
-                                <Select loading={loading}>
+                                <Select>
                                     {filteredCities.map((city: any) => (
                                         <Select.Option key={city.id} value={city.id}>
                                             {city.name}
@@ -195,7 +195,7 @@ export default function CreateListing() {
                                         return Upload.LIST_IGNORE;
                                     }
                                     if (!notGreaterThan1MB) {
-                                        message.error('Image must be smaller than 1MB!');
+                                        message.error('Image must not be greater than 1MB!');
                                         return Upload.LIST_IGNORE;
                                     }
                                     return isImage && notGreaterThan1MB;
@@ -209,7 +209,7 @@ export default function CreateListing() {
                     </Col>
                     <Col span={24}>
                         <Form.Item label="აგენტი" name="agent_id" rules={[{ required: true, message: "გრაფა აუცილებელია" }]}>
-                            <Select loading={loading}>
+                            <Select>
                                 {agents.map((agent: any) => (
                                     <Select.Option key={agent.id} value={agent.id}>
                                         {agent.name} {agent.surname}
@@ -224,7 +224,7 @@ export default function CreateListing() {
                                 <Button onClick={() => router.push('/')} danger style={{ marginRight: "10px" }}>
                                     გაუქმება
                                 </Button>
-                                <Button type="primary" htmlType="submit" danger>
+                                <Button type="primary" htmlType="submit" danger loading={loading}>
                                     დაამატე აგენტი
                                 </Button>
                             </div>
