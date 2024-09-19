@@ -8,12 +8,19 @@ import AreaDropdown from './components/areaDropdown';
 import BedroomDropdown from './components/bedroomDropdown';
 import { useSearchParams, useRouter } from 'next/navigation';
 import CreateAgent from './components/createAgent';
-
+import { FiltersType } from './types'; // Import FiltersType
 
 export default function Home() {
-  const router = useRouter()
-  const [data, setData] = useState([]);
-  const [filters, setFilters] = useState({ regions: [], minPrice: null, maxPrice: null, minArea: null, maxArea: null, bedrooms: null });
+  const router = useRouter();
+  const [data, setData] = useState<any[]>([]);
+  const [filters, setFilters] = useState<FiltersType>({
+    regions: [],
+    minPrice: null,
+    maxPrice: null,
+    minArea: null,
+    maxArea: null,
+    bedrooms: null
+  });
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -24,14 +31,13 @@ export default function Home() {
     const maxAreaParam = searchParams.get('maxArea');
     const bedroomsParam = searchParams.get('bedrooms');
 
-
     setFilters({
       regions: regionParam ? regionParam.split(',').map(Number) : [],
-      minPrice: minPriceParam || null,
-      maxPrice: maxPriceParam || null,
-      minArea: minAreaParam || null,
-      maxArea: maxAreaParam || null,
-      bedrooms: bedroomsParam || null,
+      minPrice: minPriceParam ? parseFloat(minPriceParam) : null,
+      maxPrice: maxPriceParam ? parseFloat(maxPriceParam) : null,
+      minArea: minAreaParam ? parseFloat(minAreaParam) : null,
+      maxArea: maxAreaParam ? parseFloat(maxAreaParam) : null,
+      bedrooms: bedroomsParam ? parseInt(bedroomsParam) : null,
     });
 
     const fetchData = async () => {
@@ -53,33 +59,27 @@ export default function Home() {
   }, [searchParams]);
 
   const filteredData = data.filter((listing: any) => {
-    const matchesRegion = filters.regions && Array.isArray(filters.regions) && filters.regions.length
+    const matchesRegion = filters.regions && filters.regions.length
       ? filters.regions.includes(listing.city.region_id)
       : true;
 
-    //price range
-    const minPrice = filters.minPrice ? parseFloat(filters.minPrice) : null;
-    const maxPrice = filters.maxPrice ? parseFloat(filters.maxPrice) : null;
+    const minPrice = filters.minPrice;
+    const maxPrice = filters.maxPrice;
 
     const matchesMinPrice = minPrice !== null ? listing.price >= minPrice : true;
     const matchesMaxPrice = maxPrice !== null ? listing.price <= maxPrice : true;
-    //price range
 
-    //area range
-    const minArea = filters.minArea ? parseFloat(filters.minArea) : null;
-    const maxArea = filters.maxArea ? parseFloat(filters.maxArea) : null;
+    const minArea = filters.minArea;
+    const maxArea = filters.maxArea;
 
     const matchesMinArea = minArea !== null ? listing.area >= minArea : true;
     const matchesMaxArea = maxArea !== null ? listing.area <= maxArea : true;
-    //area range
-    //bedrooms
-    const bedrooms = filters.bedrooms ? parseInt(filters.bedrooms) : null;
-    const matchesBedrooms = bedrooms != null ? listing.bedrooms === bedrooms : true;
-    //bedrooms
+
+    const bedrooms = filters.bedrooms;
+    const matchesBedrooms = bedrooms !== null ? listing.bedrooms === bedrooms : true;
 
     return matchesRegion && matchesMinPrice && matchesMaxPrice && matchesMinArea && matchesMaxArea && matchesBedrooms;
   });
-
 
   return (
     <>

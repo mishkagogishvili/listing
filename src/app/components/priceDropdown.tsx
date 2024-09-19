@@ -1,16 +1,25 @@
 import { useState, useEffect } from 'react';
 import { Dropdown, Button, Input } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
+import { FiltersType } from '../types';
 
-export default function PriceDropdown({ setFilters, selectedPriceRange }) {
+interface PriceDropdownProps {
+    setFilters: React.Dispatch<React.SetStateAction<FiltersType>>;
+    selectedPriceRange: {
+        minPrice: number | null;
+        maxPrice: number | null;
+    };
+}
+
+export default function PriceDropdown({ setFilters, selectedPriceRange }: PriceDropdownProps) {
     const [minPrice, setMinPrice] = useState<string>('');
     const [maxPrice, setMaxPrice] = useState<string>('');
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         if (selectedPriceRange) {
-            setMinPrice(selectedPriceRange.minPrice || '');
-            setMaxPrice(selectedPriceRange.maxPrice || '');
+            setMinPrice(selectedPriceRange.minPrice !== null ? selectedPriceRange.minPrice.toString() : '');
+            setMaxPrice(selectedPriceRange.maxPrice !== null ? selectedPriceRange.maxPrice.toString() : '');
         }
     }, [selectedPriceRange]);
 
@@ -35,8 +44,8 @@ export default function PriceDropdown({ setFilters, selectedPriceRange }) {
 
         setFilters((prevFilters) => ({
             ...prevFilters,
-            minPrice: minPrice || null,
-            maxPrice: maxPrice || null
+            minPrice: minPrice ? parseFloat(minPrice) : null,
+            maxPrice: maxPrice ? parseFloat(maxPrice) : null
         }));
     };
 
@@ -60,7 +69,7 @@ export default function PriceDropdown({ setFilters, selectedPriceRange }) {
             </div>
             <div style={{ marginTop: '10px', textAlign: 'right' }}>
                 <Button type="primary" onClick={handleChoose} danger>
-                    არჩევა
+                    Choose
                 </Button>
             </div>
         </div>
@@ -69,7 +78,7 @@ export default function PriceDropdown({ setFilters, selectedPriceRange }) {
     return (
         <Dropdown overlay={menu} open={visible} onOpenChange={(flag) => setVisible(flag)} trigger={['click']}>
             <Button>
-                ფასი <DownOutlined />
+                Price <DownOutlined />
             </Button>
         </Dropdown>
     );

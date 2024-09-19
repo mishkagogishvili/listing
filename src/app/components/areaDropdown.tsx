@@ -1,16 +1,25 @@
 import { useState, useEffect } from 'react';
 import { Dropdown, Button, Input } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
+import { FiltersType } from '../types'; // Import FiltersType
 
-export default function AreaDropdown({ setFilters, selectedAreaRange }) {
+interface AreaDropdownProps {
+    setFilters: React.Dispatch<React.SetStateAction<FiltersType>>;
+    selectedAreaRange: {
+        minArea: number | null;
+        maxArea: number | null;
+    };
+}
+
+export default function AreaDropdown({ setFilters, selectedAreaRange }: AreaDropdownProps) {
     const [minArea, setMinArea] = useState<string>('');
     const [maxArea, setMaxArea] = useState<string>('');
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         if (selectedAreaRange) {
-            setMinArea(selectedAreaRange.minArea || '');
-            setMaxArea(selectedAreaRange.maxArea || '');
+            setMinArea(selectedAreaRange.minArea?.toString() || '');
+            setMaxArea(selectedAreaRange.maxArea?.toString() || '');
         }
     }, [selectedAreaRange]);
 
@@ -35,8 +44,8 @@ export default function AreaDropdown({ setFilters, selectedAreaRange }) {
 
         setFilters((prevFilters) => ({
             ...prevFilters,
-            minArea: minArea || null,
-            maxArea: maxArea || null
+            minArea: minArea ? parseFloat(minArea) : null,
+            maxArea: maxArea ? parseFloat(maxArea) : null
         }));
     };
 
@@ -60,7 +69,7 @@ export default function AreaDropdown({ setFilters, selectedAreaRange }) {
             </div>
             <div style={{ marginTop: '10px', textAlign: 'right' }}>
                 <Button type="primary" onClick={handleChoose} danger>
-                    არჩევა
+                    Choose
                 </Button>
             </div>
         </div>
@@ -69,7 +78,7 @@ export default function AreaDropdown({ setFilters, selectedAreaRange }) {
     return (
         <Dropdown overlay={menu} open={visible} onOpenChange={(flag) => setVisible(flag)} trigger={['click']}>
             <Button>
-                ფართობი <DownOutlined />
+                Area <DownOutlined />
             </Button>
         </Dropdown>
     );

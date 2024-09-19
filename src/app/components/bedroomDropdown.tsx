@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Dropdown, Button, Input } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
+import { FiltersType } from '../types';
 
-export default function BedroomDropdown({ setFilters, selectedBedrooms }) {
+interface BedroomDropdownProps {
+    setFilters: React.Dispatch<React.SetStateAction<FiltersType>>;
+    selectedBedrooms: number | null;
+}
+
+export default function BedroomDropdown({ setFilters, selectedBedrooms }: BedroomDropdownProps) {
     const [bedrooms, setBedrooms] = useState<string>('');
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         // Update state when selectedBedrooms changes
-        if (selectedBedrooms) {
-            setBedrooms(selectedBedrooms || '');
-        }
+        setBedrooms(selectedBedrooms !== null ? selectedBedrooms.toString() : '');
     }, [selectedBedrooms]);
 
     const handleChoose = () => {
@@ -28,7 +32,7 @@ export default function BedroomDropdown({ setFilters, selectedBedrooms }) {
 
         setFilters((prevFilters) => ({
             ...prevFilters,
-            bedrooms: bedrooms || null
+            bedrooms: bedrooms ? parseInt(bedrooms, 10) : null
         }));
     };
 
@@ -45,7 +49,7 @@ export default function BedroomDropdown({ setFilters, selectedBedrooms }) {
             </div>
             <div style={{ marginTop: '10px', textAlign: 'right' }}>
                 <Button type="primary" onClick={handleChoose} danger>
-                    არჩევა
+                    Choose
                 </Button>
             </div>
         </div>
@@ -54,7 +58,7 @@ export default function BedroomDropdown({ setFilters, selectedBedrooms }) {
     return (
         <Dropdown overlay={menu} open={visible} onOpenChange={(flag) => setVisible(flag)} trigger={['click']}>
             <Button>
-                საძინებლები <DownOutlined />
+                Bedrooms <DownOutlined />
             </Button>
         </Dropdown>
     );

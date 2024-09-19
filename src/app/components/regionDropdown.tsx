@@ -1,14 +1,26 @@
+// src/app/components/regionDropdown.tsx
 import { useState, useEffect } from 'react';
 import { Dropdown, Button, Checkbox, message } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
+import { FiltersType } from '../types'; // Adjust the import path as needed
 
-export default function RegionDropdown({ setFilters, selectedRegions }) {
-    const [checkedItems, setCheckedItems] = useState<string[]>(selectedRegions);
+interface RegionDropdownProps {
+    setFilters: React.Dispatch<React.SetStateAction<FiltersType>>;
+    selectedRegions: number[];
+}
+
+interface RegionOption {
+    id: number;
+    name: string;
+}
+
+export default function RegionDropdown({ setFilters, selectedRegions }: RegionDropdownProps) {
+    const [checkedItems, setCheckedItems] = useState<number[]>(selectedRegions);
     const [visible, setVisible] = useState(false);
-    const [options, setOptions] = useState([]);
+    const [options, setOptions] = useState<RegionOption[]>([]);
 
     useEffect(() => {
-        setCheckedItems(selectedRegions.map(String));
+        setCheckedItems(selectedRegions);
     }, [selectedRegions]);
 
     useEffect(() => {
@@ -20,7 +32,7 @@ export default function RegionDropdown({ setFilters, selectedRegions }) {
                         'Accept': 'application/json',
                     },
                 });
-                const data = await response.json();
+                const data: RegionOption[] = await response.json();
                 setOptions(data);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -30,12 +42,14 @@ export default function RegionDropdown({ setFilters, selectedRegions }) {
         fetchData();
     }, []);
 
-    const handleCheckboxChange = (option: string, checked: boolean) => {
-        if (checked) {
-            setCheckedItems((prev) => [...prev, option]);
-        } else {
-            setCheckedItems((prev) => prev.filter((item) => item !== option));
-        }
+    const handleCheckboxChange = (optionId: number, checked: boolean) => {
+        setCheckedItems((prev) => {
+            if (checked) {
+                return [...prev, optionId];
+            } else {
+                return prev.filter((item) => item !== optionId);
+            }
+        });
     };
 
     const handleChoose = () => {
@@ -51,17 +65,20 @@ export default function RegionDropdown({ setFilters, selectedRegions }) {
 
         window.history.pushState({}, '', newUrl.toString());
 
-        setFilters({ regions: checkedItems.map(Number) });
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            regions: checkedItems
+        }));
     };
 
     const menu = (
         <div style={{ padding: '10px', backgroundColor: 'white', borderRadius: '4px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                {options.map((option: any) => (
+                {options.map((option) => (
                     <div key={option.id}>
                         <Checkbox
-                            checked={checkedItems.includes(String(option.id))}
-                            onChange={(e) => handleCheckboxChange(String(option.id), e.target.checked)}
+                            checked={checkedItems.includes(option.id)}
+                            onChange={(e) => handleCheckboxChange(option.id, e.target.checked)}
                         >
                             {option.name}
                         </Checkbox>
@@ -70,7 +87,7 @@ export default function RegionDropdown({ setFilters, selectedRegions }) {
             </div>
             <div style={{ marginTop: '10px', textAlign: 'right' }}>
                 <Button type="primary" onClick={handleChoose} danger>
-                    არჩევა
+                    Choose
                 </Button>
             </div>
         </div>
@@ -79,7 +96,7 @@ export default function RegionDropdown({ setFilters, selectedRegions }) {
     return (
         <Dropdown overlay={menu} open={visible} onOpenChange={(flag) => setVisible(flag)} trigger={['click']}>
             <Button>
-                რეგიონი <DownOutlined />
+                Region <DownOutlined />
             </Button>
         </Dropdown>
     );
